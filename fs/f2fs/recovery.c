@@ -92,7 +92,7 @@ static int recover_dentry(struct inode *inode, struct page *ipage)
 		goto out_err;
 	}
 retry:
-	de = f2fs_find_entry(dir, &name, &page);
+	de = f2fs_find_entry(dir, &name, &page, 0);
 	if (de && inode->i_ino == le32_to_cpu(de->ino)) {
 		clear_inode_flag(F2FS_I(inode), FI_INC_LINK);
 		goto out_unmap_put;
@@ -526,8 +526,8 @@ out:
 			MAIN_BLKADDR(sbi) << PAGE_CACHE_SHIFT, -1);
 
 	if (err) {
-		truncate_inode_pages_final(NODE_MAPPING(sbi));
-		truncate_inode_pages_final(META_MAPPING(sbi));
+		truncate_inode_pages(NODE_MAPPING(sbi), 0);
+		truncate_inode_pages(META_MAPPING(sbi), 0);
 	}
 
 	sbi->por_doing = false;
