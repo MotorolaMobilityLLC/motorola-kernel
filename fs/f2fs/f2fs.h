@@ -50,6 +50,7 @@
 #define F2FS_MOUNT_INLINE_DENTRY	0x00000200
 #define F2FS_MOUNT_FLUSH_MERGE		0x00000400
 #define F2FS_MOUNT_NOBARRIER		0x00000800
+#define F2FS_MOUNT_FASTBOOT		0x00001000
 
 #define clear_opt(sbi, option)	(sbi->mount_opt.opt &= ~F2FS_MOUNT_##option)
 #define set_opt(sbi, option)	(sbi->mount_opt.opt |= F2FS_MOUNT_##option)
@@ -826,6 +827,8 @@ static inline int __get_cp_reason(struct f2fs_sb_info *sbi)
 {
 	int reason = CP_SYNC;
 
+	if (test_opt(sbi, FASTBOOT))
+		reason = CP_FASTBOOT;
 	if (is_sbi_flag_set(sbi, SBI_IS_CLOSE))
 		reason = CP_UMOUNT;
 	return reason;
