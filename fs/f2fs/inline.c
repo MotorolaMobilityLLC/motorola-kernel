@@ -106,6 +106,7 @@ int f2fs_convert_inline_page(struct dnode_of_data *dn, struct page *page)
 	src_addr = inline_data_addr(dn->inode_page);
 	dst_addr = kmap_atomic(page);
 	memcpy(dst_addr, src_addr, MAX_INLINE_DATA);
+	flush_dcache_page(page);
 	kunmap_atomic(dst_addr);
 	SetPageUptodate(page);
 no_update:
@@ -358,6 +359,7 @@ static int f2fs_convert_inline_dir(struct inode *dir, struct page *ipage,
 	memcpy(dentry_blk->filename, inline_dentry->filename,
 					NR_INLINE_DENTRY * F2FS_SLOT_LEN);
 
+	flush_dcache_page(page);
 	kunmap_atomic(dentry_blk);
 	SetPageUptodate(page);
 	set_page_dirty(page);
