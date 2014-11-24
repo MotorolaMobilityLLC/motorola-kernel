@@ -286,7 +286,7 @@ ino_t f2fs_inode_by_name(struct inode *dir, struct qstr *qstr)
 	de = f2fs_find_entry(dir, qstr, &page, 0);
 	if (de) {
 		res = le32_to_cpu(de->ino);
-		f2fs_dentry_kunmap(dir, page, false);
+		f2fs_dentry_kunmap(dir, page);
 		f2fs_put_page(page, 0);
 	}
 
@@ -301,7 +301,7 @@ void f2fs_set_link(struct inode *dir, struct f2fs_dir_entry *de,
 	f2fs_wait_on_page_writeback(page, type);
 	de->ino = cpu_to_le32(inode->i_ino);
 	set_de_type(de, inode);
-	f2fs_dentry_kunmap(dir, page, true);
+	f2fs_dentry_kunmap(dir, page);
 	set_page_dirty(page);
 	dir->i_mtime = dir->i_ctime = CURRENT_TIME;
 	mark_inode_dirty(dir);
@@ -378,7 +378,6 @@ static int make_empty_dir(struct inode *inode,
 	make_dentry_ptr(&d, (void *)dentry_blk, 1);
 	do_make_empty_dir(inode, parent, &d);
 
-	flush_dcache_page(dentry_page);
 	kunmap_atomic(dentry_blk);
 
 	set_page_dirty(dentry_page);
@@ -592,7 +591,6 @@ fail:
 		update_inode_page(dir);
 		clear_inode_flag(F2FS_I(dir), FI_UPDATE_DIR);
 	}
-	flush_dcache_page(dentry_page);
 	kunmap(dentry_page);
 	f2fs_put_page(dentry_page, 1);
 	return err;
@@ -675,7 +673,6 @@ void f2fs_delete_entry(struct f2fs_dir_entry *dentry, struct page *page,
 	bit_pos = find_next_bit_le(&dentry_blk->dentry_bitmap,
 			NR_DENTRY_IN_BLOCK,
 			0);
-	flush_dcache_page(page);
 	kunmap(page); /* kunmap - pair of f2fs_find_entry */
 	set_page_dirty(page);
 
