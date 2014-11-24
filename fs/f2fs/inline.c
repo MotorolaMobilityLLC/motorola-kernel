@@ -359,7 +359,6 @@ static int f2fs_convert_inline_dir(struct inode *dir, struct page *ipage,
 	memcpy(dentry_blk->filename, inline_dentry->filename,
 					NR_INLINE_DENTRY * F2FS_SLOT_LEN);
 
-	flush_dcache_page(page);
 	kunmap_atomic(dentry_blk);
 	SetPageUptodate(page);
 	set_page_dirty(page);
