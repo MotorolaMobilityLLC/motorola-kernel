@@ -95,11 +95,9 @@ static void __submit_merged_bio(struct f2fs_bio_info *io)
 		return;
 
 	if (is_read_io(fio->rw))
-		trace_f2fs_submit_read_bio(io->sbi->sb, fio->rw,
-							fio->type, io->bio);
+		trace_f2fs_submit_read_bio(io->sbi->sb, fio, io->bio);
 	else
-		trace_f2fs_submit_write_bio(io->sbi->sb, fio->rw,
-							fio->type, io->bio);
+		trace_f2fs_submit_write_bio(io->sbi->sb, fio, io->bio);
 
 	submit_bio(fio->rw, io->bio);
 	io->bio = NULL;
@@ -136,7 +134,7 @@ int f2fs_submit_page_bio(struct f2fs_sb_info *sbi, struct page *page,
 {
 	struct bio *bio;
 
-	trace_f2fs_submit_page_bio(page, fio->blk_addr, fio->rw, fio->type);
+	trace_f2fs_submit_page_bio(page, fio);
 
 	/* Allocate a new bio */
 	bio = __bio_alloc(sbi, fio->blk_addr, 1, is_read_io(fio->rw));
@@ -187,7 +185,7 @@ alloc_new:
 	io->last_block_in_bio = fio->blk_addr;
 
 	up_write(&io->io_rwsem);
-	trace_f2fs_submit_page_mbio(page, fio->blk_addr, fio->rw, fio->type);
+	trace_f2fs_submit_page_mbio(page, fio);
 }
 
 /*
