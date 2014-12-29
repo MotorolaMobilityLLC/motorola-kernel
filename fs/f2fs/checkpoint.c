@@ -23,7 +23,7 @@
 #include <trace/events/f2fs.h>
 
 static struct kmem_cache *ino_entry_slab;
-static struct kmem_cache *inode_entry_slab;
+struct kmem_cache *inode_entry_slab;
 
 /*
  * We guarantee no failure on the returned page.
@@ -672,7 +672,7 @@ fail_no_cp:
 	return -EINVAL;
 }
 
-static int __add_dirty_inode(struct inode *inode, struct dir_inode_entry *new)
+static int __add_dirty_inode(struct inode *inode, struct inode_entry *new)
 {
 	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
 
@@ -689,7 +689,7 @@ static int __add_dirty_inode(struct inode *inode, struct dir_inode_entry *new)
 void update_dirty_page(struct inode *inode, struct page *page)
 {
 	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
-	struct dir_inode_entry *new;
+	struct inode_entry *new;
 	int ret = 0;
 
 	if (!S_ISDIR(inode->i_mode) && !S_ISREG(inode->i_mode))
@@ -718,7 +718,7 @@ out:
 void add_dirty_dir_inode(struct inode *inode)
 {
 	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
-	struct dir_inode_entry *new =
+	struct inode_entry *new =
 			f2fs_kmem_cache_alloc(inode_entry_slab, GFP_NOFS);
 	int ret = 0;
 
@@ -736,7 +736,7 @@ void add_dirty_dir_inode(struct inode *inode)
 void remove_dirty_dir_inode(struct inode *inode)
 {
 	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
-	struct dir_inode_entry *entry;
+	struct inode_entry *entry;
 
 	if (!S_ISDIR(inode->i_mode))
 		return;
@@ -766,7 +766,7 @@ void remove_dirty_dir_inode(struct inode *inode)
 void sync_dirty_dir_inodes(struct f2fs_sb_info *sbi)
 {
 	struct list_head *head;
-	struct dir_inode_entry *entry;
+	struct inode_entry *entry;
 	struct inode *inode;
 retry:
 	if (unlikely(f2fs_cp_error(sbi)))
@@ -779,7 +779,7 @@ retry:
 		spin_unlock(&sbi->dir_inode_lock);
 		return;
 	}
-	entry = list_entry(head->next, struct dir_inode_entry, list);
+	entry = list_entry(head->next, struct inode_entry, list);
 	inode = igrab(entry->inode);
 	spin_unlock(&sbi->dir_inode_lock);
 	if (inode) {
@@ -1105,8 +1105,8 @@ int __init create_checkpoint_caches(void)
 			sizeof(struct ino_entry));
 	if (!ino_entry_slab)
 		return -ENOMEM;
-	inode_entry_slab = f2fs_kmem_cache_create("f2fs_dirty_dir_entry",
-			sizeof(struct dir_inode_entry));
+	inode_entry_slab = f2fs_kmem_cache_create("f2fs_inode_entry",
+			sizeof(struct inode_entry));
 	if (!inode_entry_slab) {
 		kmem_cache_destroy(ino_entry_slab);
 		return -ENOMEM;
