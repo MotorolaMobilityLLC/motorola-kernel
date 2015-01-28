@@ -446,7 +446,7 @@ static void f2fs_put_super(struct super_block *sb)
 	 * But, the previous checkpoint was not done by umount, it needs to do
 	 * clean checkpoint again.
 	 */
-	if (sbi->s_dirty ||
+	if (is_sbi_flag_set(sbi, SBI_IS_DIRTY) ||
 			!is_set_ckpt_flags(F2FS_CKPT(sbi), CP_UMOUNT_FLAG)) {
 		struct cp_control cpc = {
 			.reason = CP_UMOUNT,
@@ -486,7 +486,8 @@ int f2fs_sync_fs(struct super_block *sb, int sync)
 	if (sync) {
 		struct cp_control cpc;
 
-		cpc.reason = (sbi->s_closing) ? CP_UMOUNT : CP_SYNC;
+		cpc.reason = (is_sbi_flag_set(sbi, SBI_IS_CLOSE)) ?
+						CP_UMOUNT : CP_SYNC;
 		mutex_lock(&sbi->gc_mutex);
 		write_checkpoint(sbi, &cpc);
 		mutex_unlock(&sbi->gc_mutex);
@@ -885,7 +886,7 @@ static void init_sb_info(struct f2fs_sb_info *sbi)
 		atomic_set(&sbi->nr_pages[i], 0);
 
 	sbi->dir_level = DEF_DIR_LEVEL;
-	sbi->need_fsck = false;
+	clear_sbi_flag(sbi, SBI_NEED_FSCK);
 }
 
 /*
@@ -996,7 +997,7 @@ try_onemore:
 	mutex_init(&sbi->writepages);
 	mutex_init(&sbi->cp_mutex);
 	init_rwsem(&sbi->node_write);
-	sbi->por_doing = false;
+	clear_sbi_flag(sbi, SBI_POR_DOING);
 	spin_lock_init(&sbi->stat_lock);
 
 	init_rwsem(&sbi->read_io.io_rwsem);
@@ -1120,7 +1121,7 @@ try_onemore:
 		goto free_proc;
 
 	if (!retry)
-		sbi->need_fsck = true;
+		set_sbi_flag(sbi, SBI_NEED_FSCK);
 
 	/* recover fsynced data */
 	if (!test_opt(sbi, DISABLE_ROLL_FORWARD)) {
@@ -1189,7 +1190,7 @@ static struct dentry *f2fs_mount(struct file_system_type *fs_type, int flags,
 static void kill_f2fs_super(struct super_block *sb)
 {
 	if (sb->s_root)
-		F2FS_SB(sb)->s_closing = true;
+		set_sbi_flag(F2FS_SB(sb), SBI_IS_CLOSE);
 	kill_block_super(sb);
 }
 
