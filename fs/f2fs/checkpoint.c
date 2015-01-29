@@ -952,6 +952,11 @@ static void do_checkpoint(struct f2fs_sb_info *sbi, struct cp_control *cpc)
 	else
 		clear_ckpt_flags(ckpt, CP_UMOUNT_FLAG);
 
+	if (cpc->reason == CP_FASTBOOT)
+		set_ckpt_flags(ckpt, CP_FASTBOOT_FLAG);
+	else
+		clear_ckpt_flags(ckpt, CP_FASTBOOT_FLAG);
+
 	if (orphan_num)
 		set_ckpt_flags(ckpt, CP_ORPHAN_PRESENT_FLAG);
 	else
