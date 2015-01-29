@@ -101,6 +101,7 @@ enum {
 
 enum {
 	CP_UMOUNT,
+	CP_FASTBOOT,
 	CP_SYNC,
 	CP_DISCARD,
 };
@@ -836,12 +837,13 @@ static inline int __get_cp_reason(struct f2fs_sb_info *sbi)
 
 static inline bool __remain_node_summaries(int reason)
 {
-	return (reason == CP_UMOUNT);
+	return (reason == CP_UMOUNT || reason == CP_FASTBOOT);
 }
 
 static inline bool __exist_node_summaries(struct f2fs_sb_info *sbi)
 {
-	return (is_set_ckpt_flags(F2FS_CKPT(sbi), CP_UMOUNT_FLAG));
+	return (is_set_ckpt_flags(F2FS_CKPT(sbi), CP_UMOUNT_FLAG) ||
+			is_set_ckpt_flags(F2FS_CKPT(sbi), CP_FASTBOOT_FLAG));
 }
 
 /*
