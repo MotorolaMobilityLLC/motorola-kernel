@@ -494,6 +494,7 @@ int f2fs_sync_fs(struct super_block *sb, int sync)
 		struct cp_control cpc;
 
 		cpc.reason = __get_cp_reason(sbi);
+
 		mutex_lock(&sbi->gc_mutex);
 		write_checkpoint(sbi, &cpc);
 		mutex_unlock(&sbi->gc_mutex);
