@@ -764,6 +764,25 @@ static inline void f2fs_unlock_all(struct f2fs_sb_info *sbi)
 	up_write(&sbi->cp_rwsem);
 }
 
+static inline int __get_cp_reason(struct f2fs_sb_info *sbi)
+{
+	int reason = CP_SYNC;
+
+	if (is_sbi_flag_set(sbi, SBI_IS_CLOSE))
+		reason = CP_UMOUNT;
+	return reason;
+}
+
+static inline bool __remain_node_summaries(int reason)
+{
+	return (reason == CP_UMOUNT);
+}
+
+static inline bool __exist_node_summaries(struct f2fs_sb_info *sbi)
+{
+	return (is_set_ckpt_flags(F2FS_CKPT(sbi), CP_UMOUNT_FLAG));
+}
+
 /*
  * Check whether the given nid is within node id range.
  */
