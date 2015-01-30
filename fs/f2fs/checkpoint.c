@@ -319,6 +319,10 @@ static void f2fs_invalidate_meta_page(struct page *page, unsigned long offset)
 
 static int f2fs_release_meta_page(struct page *page, gfp_t wait)
 {
+	/* If this is dirty page, keep PagePrivate */
+	if (PageDirty(page))
+		return 0;
+
 	ClearPagePrivate(page);
 	return 1;
 }
