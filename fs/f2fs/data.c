@@ -803,6 +803,7 @@ struct page *find_data_page(struct inode *inode, pgoff_t index, bool sync)
 	struct address_space *mapping = inode->i_mapping;
 	struct dnode_of_data dn;
 	struct page *page;
+	struct extent_info ei;
 	int err;
 	struct f2fs_io_info fio = {
 		.type = DATA,
@@ -813,6 +814,11 @@ struct page *find_data_page(struct inode *inode, pgoff_t index, bool sync)
 	if (page && PageUptodate(page))
 		return page;
 	f2fs_put_page(page, 0);
+
+	if (f2fs_lookup_extent_cache(inode, index, &ei)) {
+		dn.data_blkaddr = ei.blk + index - ei.fofs;
+		goto got_it;
+	}
 
 	set_new_dnode(&dn, inode, NULL, NULL, 0);
 	err = get_dnode_of_data(&dn, index, LOOKUP_NODE);
@@ -827,6 +833,7 @@ struct page *find_data_page(struct inode *inode, pgoff_t index, bool sync)
 	if (unlikely(dn.data_blkaddr == NEW_ADDR))
 		return ERR_PTR(-EINVAL);
 
+got_it:
 	page = grab_cache_page(mapping, index);
 	if (!page)
 		return ERR_PTR(-ENOMEM);
@@ -861,6 +868,7 @@ struct page *get_lock_data_page(struct inode *inode, pgoff_t index)
 	struct address_space *mapping = inode->i_mapping;
 	struct dnode_of_data dn;
 	struct page *page;
+	struct extent_info ei;
 	int err;
 	struct f2fs_io_info fio = {
 		.type = DATA,
@@ -870,6 +878,11 @@ repeat:
 	page = grab_cache_page(mapping, index);
 	if (!page)
 		return ERR_PTR(-ENOMEM);
+
+	if (f2fs_lookup_extent_cache(inode, index, &ei)) {
+		dn.data_blkaddr = ei.blk + index - ei.fofs;
+		goto got_it;
+	}
 
 	set_new_dnode(&dn, inode, NULL, NULL, 0);
 	err = get_dnode_of_data(&dn, index, LOOKUP_NODE);
@@ -884,6 +897,7 @@ repeat:
 		return ERR_PTR(-ENOENT);
 	}
 
+got_it:
 	if (PageUptodate(page))
 		return page;
 
