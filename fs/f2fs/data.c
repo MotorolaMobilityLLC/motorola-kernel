@@ -1256,8 +1256,10 @@ int do_write_data_page(struct page *page, struct f2fs_io_info *fio)
 	fio->blk_addr = dn.data_blkaddr;
 
 	/* This page is already truncated */
-	if (fio->blk_addr == NULL_ADDR)
+	if (fio->blk_addr == NULL_ADDR) {
+		ClearPageUptodate(page);
 		goto out_writepage;
+	}
 
 	set_page_writeback(page);
 
@@ -1352,6 +1354,8 @@ done:
 	clear_cold_data(page);
 out:
 	inode_dec_dirty_pages(inode);
+	if (err)
+		ClearPageUptodate(page);
 	unlock_page(page);
 	if (need_balance_fs)
 		f2fs_balance_fs(sbi);
