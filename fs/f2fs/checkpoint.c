@@ -1045,8 +1045,6 @@ void write_checkpoint(struct f2fs_sb_info *sbi, struct cp_control *cpc)
 	struct f2fs_checkpoint *ckpt = F2FS_CKPT(sbi);
 	unsigned long long ckpt_ver;
 
-	trace_f2fs_write_checkpoint(sbi->sb, cpc->reason, "start block_ops");
-
 	mutex_lock(&sbi->cp_mutex);
 
 	if (!is_sbi_flag_set(sbi, SBI_IS_DIRTY) &&
@@ -1056,6 +1054,9 @@ void write_checkpoint(struct f2fs_sb_info *sbi, struct cp_control *cpc)
 		goto out;
 	if (f2fs_readonly(sbi->sb))
 		goto out;
+
+	trace_f2fs_write_checkpoint(sbi->sb, cpc->reason, "start block_ops");
+
 	if (block_operations(sbi))
 		goto out;
 
