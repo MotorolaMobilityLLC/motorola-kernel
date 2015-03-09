@@ -151,7 +151,7 @@ struct f2fs_dir_entry *find_target_dentry(struct qstr *name, int *max_slots,
 			goto found;
 		}
 
-		if (max_slots && *max_slots >= 0 && max_len > *max_slots) {
+		if (max_slots && max_len > *max_slots) {
 			*max_slots = max_len;
 			max_len = 0;
 		}
