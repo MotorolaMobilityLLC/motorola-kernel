@@ -956,7 +956,7 @@ static int f2fs_fill_super(struct super_block *sb, void *data, int silent)
 	struct buffer_head *raw_super_buf;
 	struct inode *root;
 	long err = -EINVAL;
-	bool retry = true;
+	bool retry = true, need_fsck = false;
 	char *options = NULL;
 	int i;
 
@@ -1145,9 +1145,6 @@ try_onemore:
 	if (err)
 		goto free_proc;
 
-	if (!retry)
-		set_sbi_flag(sbi, SBI_NEED_FSCK);
-
 	/* recover fsynced data */
 	if (!test_opt(sbi, DISABLE_ROLL_FORWARD)) {
 		/*
@@ -1159,8 +1156,13 @@ try_onemore:
 			err = -EROFS;
 			goto free_kobj;
 		}
+
+		if (need_fsck)
+			set_sbi_flag(sbi, SBI_NEED_FSCK);
+
 		err = recover_fsync_data(sbi);
 		if (err) {
+			need_fsck = true;
 			f2fs_msg(sb, KERN_ERR,
 				"Cannot recover all fsync data errno=%ld", err);
 			goto free_kobj;
