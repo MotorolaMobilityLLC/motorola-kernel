@@ -32,6 +32,7 @@
 *.lzo
 *.patch
 *.gcno
+*.ART
 modules.builtin
 Module.symvers
 *.dwo
@@ -96,3 +97,4 @@ x509.genkey
 
 # Kconfig presets
 all.config
+Android.ART
