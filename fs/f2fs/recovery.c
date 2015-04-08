@@ -114,7 +114,7 @@ retry:
 		iput(einode);
 		goto retry;
 	}
-	err = __f2fs_add_link(dir, &name, inode, inode->i_ino, inode->i_mode);
+	err = __f2fs_add_link(dir, &name, inode);
 	if (err)
 		goto out_err;
 
