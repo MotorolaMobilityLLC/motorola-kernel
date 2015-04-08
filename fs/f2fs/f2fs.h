@@ -1245,7 +1245,6 @@ enum {
 	FI_FIRST_BLOCK_WRITTEN,	/* indicate #0 data block was written */
 	FI_DROP_CACHE,		/* drop dirty page cache */
 	FI_DATA_EXIST,		/* indicate data exists */
-	FI_INLINE_DOTS,		/* indicate inline dot dentries */
 };
 
 static inline void set_inode_flag(struct f2fs_inode_info *fi, int flag)
@@ -1282,8 +1281,6 @@ static inline void get_inline_info(struct f2fs_inode_info *fi,
 		set_inode_flag(fi, FI_INLINE_DENTRY);
 	if (ri->i_inline & F2FS_DATA_EXIST)
 		set_inode_flag(fi, FI_DATA_EXIST);
-	if (ri->i_inline & F2FS_INLINE_DOTS)
-		set_inode_flag(fi, FI_INLINE_DOTS);
 }
 
 static inline void set_raw_inline(struct f2fs_inode_info *fi,
@@ -1299,8 +1296,6 @@ static inline void set_raw_inline(struct f2fs_inode_info *fi,
 		ri->i_inline |= F2FS_INLINE_DENTRY;
 	if (is_inode_flag_set(fi, FI_DATA_EXIST))
 		ri->i_inline |= F2FS_DATA_EXIST;
-	if (is_inode_flag_set(fi, FI_INLINE_DOTS))
-		ri->i_inline |= F2FS_INLINE_DOTS;
 }
 
 static inline int f2fs_has_inline_xattr(struct inode *inode)
@@ -1344,11 +1339,6 @@ static inline void f2fs_clear_inline_inode(struct inode *inode)
 static inline int f2fs_exist_data(struct inode *inode)
 {
 	return is_inode_flag_set(F2FS_I(inode), FI_DATA_EXIST);
-}
-
-static inline int f2fs_has_inline_dots(struct inode *inode)
-{
-	return is_inode_flag_set(F2FS_I(inode), FI_INLINE_DOTS);
 }
 
 static inline bool f2fs_is_atomic_file(struct inode *inode)
@@ -1449,7 +1439,7 @@ struct dentry *f2fs_get_parent(struct dentry *child);
  * dir.c
  */
 extern unsigned char f2fs_filetype_table[F2FS_FT_MAX];
-void set_de_type(struct f2fs_dir_entry *, umode_t);
+void set_de_type(struct f2fs_dir_entry *, struct inode *);
 struct f2fs_dir_entry *find_target_dentry(struct qstr *, int *,
 			struct f2fs_dentry_ptr *, unsigned int);
 bool f2fs_fill_dentries(struct file *, void *, filldir_t,
@@ -1468,10 +1458,9 @@ ino_t f2fs_inode_by_name(struct inode *, struct qstr *);
 void f2fs_set_link(struct inode *, struct f2fs_dir_entry *,
 				struct page *, struct inode *);
 int update_dent_inode(struct inode *, const struct qstr *);
-void f2fs_update_dentry(nid_t ino, umode_t mode, struct f2fs_dentry_ptr *,
+void f2fs_update_dentry(struct inode *, struct f2fs_dentry_ptr *,
 			const struct qstr *, f2fs_hash_t , unsigned int);
-int __f2fs_add_link(struct inode *, const struct qstr *, struct inode *, nid_t,
-			umode_t);
+int __f2fs_add_link(struct inode *, const struct qstr *, struct inode *);
 void f2fs_delete_entry(struct f2fs_dir_entry *, struct page *, struct inode *,
 							struct inode *);
 int f2fs_do_tmpfile(struct inode *, struct inode *);
@@ -1481,7 +1470,7 @@ bool f2fs_empty_dir(struct inode *);
 static inline int f2fs_add_link(struct dentry *dentry, struct inode *inode)
 {
 	return __f2fs_add_link(dentry->d_parent->d_inode, &dentry->d_name,
-				inode, inode->i_ino, inode->i_mode);
+				inode);
 }
 
 /*
@@ -1802,8 +1791,7 @@ struct f2fs_dir_entry *find_in_inline_dir(struct inode *, struct qstr *,
 						struct page **, unsigned int);
 struct f2fs_dir_entry *f2fs_parent_inline_dir(struct inode *, struct page **);
 int make_empty_inline_dir(struct inode *inode, struct inode *, struct page *);
-int f2fs_add_inline_entry(struct inode *, const struct qstr *, struct inode *,
-						nid_t, umode_t);
+int f2fs_add_inline_entry(struct inode *, const struct qstr *, struct inode *);
 void f2fs_delete_inline_entry(struct f2fs_dir_entry *, struct page *,
 						struct inode *, struct inode *);
 bool f2fs_empty_inline_dir(struct inode *);
