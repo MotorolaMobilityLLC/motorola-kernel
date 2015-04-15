@@ -15,6 +15,7 @@
 #include <linux/sched.h>
 #include <linux/ctype.h>
 #include <linux/dcache.h>
+#include <linux/namei.h>
 
 #include "f2fs.h"
 #include "node.h"
@@ -296,6 +297,23 @@ fail:
 	return err;
 }
 
+static void *f2fs_follow_link(struct dentry *dentry, struct nameidata *nd)
+{
+	struct page *page;
+
+	page = page_follow_link_light(dentry, nd);
+	if (IS_ERR(page))
+		return page;
+
+	/* this is broken symlink case */
+	if (*nd_get_link(nd) == 0) {
+		kunmap(page);
+		page_cache_release(page);
+		return ERR_PTR(-ENOENT);
+	}
+	return page;
+}
+
 static int f2fs_symlink(struct inode *dir, struct dentry *dentry,
 					const char *symname)
 {
@@ -569,7 +587,7 @@ const struct inode_operations f2fs_dir_inode_operations = {
 
 const struct inode_operations f2fs_symlink_inode_operations = {
 	.readlink       = generic_readlink,
-	.follow_link    = page_follow_link_light,
+	.follow_link    = f2fs_follow_link,
 	.put_link       = page_put_link,
 	.getattr	= f2fs_getattr,
 	.setattr	= f2fs_setattr,
