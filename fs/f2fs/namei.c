@@ -520,7 +520,8 @@ static int f2fs_rename(struct inode *old_dir, struct dentry *old_dentry,
 		if (err)
 			goto put_out_dir;
 
-		if (update_dent_inode(old_inode, &new_dentry->d_name)) {
+		if (update_dent_inode(old_inode, new_inode,
+						&new_dentry->d_name)) {
 			release_orphan_inode(sbi);
 			goto put_out_dir;
 		}
@@ -560,6 +561,8 @@ static int f2fs_rename(struct inode *old_dir, struct dentry *old_dentry,
 
 	down_write(&F2FS_I(old_inode)->i_sem);
 	file_lost_pino(old_inode);
+	if (new_inode && file_enc_name(new_inode))
+		file_set_enc_name(old_inode);
 	up_write(&F2FS_I(old_inode)->i_sem);
 
 	old_inode->i_ctime = CURRENT_TIME;
