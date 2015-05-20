@@ -842,11 +842,11 @@ static int f2fs_readdir(struct file *file, void *dirent, filldir_t filldir)
 	unsigned int n = 0;
 	int err = 0;
 
-	err = f2fs_setup_fname_crypto(inode);
-	if (err)
-		return err;
-
 	if (f2fs_encrypted_inode(inode)) {
+		err = f2fs_get_encryption_info(inode);
+		if (err)
+			return err;
+
 		err = f2fs_fname_crypto_alloc_buffer(inode, F2FS_NAME_LEN,
 								&fstr);
 		if (err < 0)
