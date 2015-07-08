@@ -1791,8 +1791,10 @@ put_next:
 	f2fs_put_dnode(&dn);
 	f2fs_unlock_op(sbi);
 
-	if ((len == PAGE_CACHE_SIZE) || PageUptodate(page))
-		return 0;
+	if (len == PAGE_CACHE_SIZE)
+		goto out_update;
+	if (PageUptodate(page))
+		goto out_clear;
 
 	f2fs_wait_on_page_writeback(page, DATA);
 
@@ -1802,7 +1804,7 @@ put_next:
 
 		/* Reading beyond i_size is simple: memset to zero */
 		zero_user_segments(page, 0, start, end, PAGE_CACHE_SIZE);
-		goto out;
+		goto out_update;
 	}
 
 	if (dn.data_blkaddr == NEW_ADDR) {
@@ -1840,8 +1842,9 @@ put_next:
 			}
 		}
 	}
-out:
+out_update:
 	SetPageUptodate(page);
+out_clear:
 	clear_cold_data(page);
 	return 0;
 
