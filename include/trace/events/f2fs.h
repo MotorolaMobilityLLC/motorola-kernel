@@ -724,8 +724,8 @@ DECLARE_EVENT_CLASS(f2fs__submit_bio,
 		__entry->dev		= sb->s_dev;
 		__entry->rw		= fio->rw;
 		__entry->type		= fio->type;
-		__entry->sector		= bio->bi_sector;
-		__entry->size		= bio->bi_size;
+		__entry->sector		= bio->bi_iter.bi_sector;
+		__entry->size		= bio->bi_iter.bi_size;
 	),
 
 	TP_printk("dev = (%d,%d), %s%s, %s, sector = %lld, size = %u",
@@ -923,6 +923,7 @@ TRACE_EVENT(f2fs_writepages,
 		__field(char,	tagged_writepages)
 		__field(char,	for_reclaim)
 		__field(char,	range_cyclic)
+		__field(char,	for_sync)
 	),
 
 	TP_fast_assign(
@@ -941,11 +942,12 @@ TRACE_EVENT(f2fs_writepages,
 		__entry->tagged_writepages	= wbc->tagged_writepages;
 		__entry->for_reclaim	= wbc->for_reclaim;
 		__entry->range_cyclic	= wbc->range_cyclic;
+		__entry->for_sync	= wbc->for_sync;
 	),
 
 	TP_printk("dev = (%d,%d), ino = %lu, %s, %s, nr_to_write %ld, "
 		"skipped %ld, start %lld, end %lld, wb_idx %lu, sync_mode %d, "
-		"kupdate %u background %u tagged %u reclaim %u cyclic %u",
+		"kupdate %u background %u tagged %u reclaim %u cyclic %u sync %u",
 		show_dev_ino(__entry),
 		show_block_type(__entry->type),
 		show_file_type(__entry->dir),
@@ -959,7 +961,8 @@ TRACE_EVENT(f2fs_writepages,
 		__entry->for_background,
 		__entry->tagged_writepages,
 		__entry->for_reclaim,
-		__entry->range_cyclic)
+		__entry->range_cyclic,
+		__entry->for_sync)
 );
 
 TRACE_EVENT(f2fs_write_checkpoint,
