@@ -16,6 +16,7 @@
 #include <linux/kthread.h>
 #include <linux/vmalloc.h>
 #include <linux/swap.h>
+#include <linux/timer.h>
 
 #include "f2fs.h"
 #include "segment.h"
@@ -367,7 +368,8 @@ void f2fs_balance_fs_bg(struct f2fs_sb_info *sbi)
 	/* check the # of cached NAT entries and prefree segments */
 	if (try_to_free_nats(sbi, NAT_ENTRY_PER_BLOCK) ||
 			excess_prefree_segs(sbi) ||
-			!available_free_memory(sbi, INO_ENTRIES))
+			!available_free_memory(sbi, INO_ENTRIES) ||
+			jiffies > sbi->cp_expires)
 		f2fs_sync_fs(sbi->sb, true);
 }
 
