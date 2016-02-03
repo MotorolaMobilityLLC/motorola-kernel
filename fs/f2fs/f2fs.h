@@ -102,6 +102,40 @@ static inline bool f2fs_crc_valid(__u32 blk_crc, void *buf, size_t buf_size)
 	return f2fs_crc32(buf, buf_size) == blk_crc;
 }
 
+<<<<<<< HEAD
+=======
+static inline void inode_lock(struct inode *inode)
+{
+	mutex_lock(&inode->i_mutex);
+}
+
+static inline void inode_unlock(struct inode *inode)
+{
+	mutex_unlock(&inode->i_mutex);
+}
+
+/**
+ * wq_has_sleeper - check if there are any waiting processes
+ * @wq: wait queue head
+ *
+ * Returns true if wq has waiting processes
+ *
+ * Please refer to the comment for waitqueue_active.
+ */
+static inline bool wq_has_sleeper(wait_queue_head_t *wq) 
+{
+	/*   
+	 * We need to be sure we are in sync with the
+	 * add_wait_queue modifications to the wait queue.
+	 *
+	 * This memory barrier should be paired with one on the
+	 * waiting side.
+	 */
+	smp_mb();
+	return waitqueue_active(wq);
+}
+
+>>>>>>> f2fs: move dio preallocation into f2fs_file_write_iter
 /*
  * For checkpoint manager
  */
@@ -375,6 +409,7 @@ struct f2fs_map_blocks {
 #define F2FS_GET_BLOCK_DIO		1
 #define F2FS_GET_BLOCK_FIEMAP		2
 #define F2FS_GET_BLOCK_BMAP		3
+#define F2FS_GET_BLOCK_PRE_DIO		4
 
 /*
  * i_advise uses FADVISE_XXX_BIT. We can add additional hints later.
@@ -1814,6 +1849,7 @@ void f2fs_submit_page_mbio(struct f2fs_io_info *);
 void set_data_blkaddr(struct dnode_of_data *);
 int reserve_new_block(struct dnode_of_data *);
 int f2fs_get_block(struct dnode_of_data *, pgoff_t);
+ssize_t f2fs_preallocate_blocks(struct inode *, loff_t, size_t, bool);
 int f2fs_reserve_block(struct dnode_of_data *, pgoff_t);
 struct page *get_read_data_page(struct inode *, pgoff_t, int);
 struct page *find_data_page(struct inode *, pgoff_t);
