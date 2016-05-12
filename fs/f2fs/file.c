@@ -1500,6 +1500,10 @@ static int f2fs_ioc_shutdown(struct file *filp, unsigned long arg)
 	case FS_GOING_DOWN_NOSYNC:
 		f2fs_stop_checkpoint(sbi);
 		break;
+	case FS_GOING_STOP_GC:
+		stop_gc_thread(sbi);
+		set_sbi_flag(sbi, SBI_NO_GC);
+		break;
 	default:
 		return -EINVAL;
 	}
@@ -1629,6 +1633,9 @@ static int f2fs_ioc_gc(struct file *filp, unsigned long arg)
 		return -EFAULT;
 
 	if (!count || count > F2FS_BATCH_GC_MAX_NUM)
+		return -EINVAL;
+
+	if (is_sbi_flag_set(sbi, SBI_NO_GC))
 		return -EINVAL;
 
 	for (i = 0; i < count; i++) {
