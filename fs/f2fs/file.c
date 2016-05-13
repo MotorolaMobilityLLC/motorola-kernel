@@ -1444,6 +1444,10 @@ static int f2fs_ioc_shutdown(struct file *filp, unsigned long arg)
 	case FS_GOING_DOWN_NOSYNC:
 		f2fs_stop_checkpoint(sbi);
 		break;
+	case FS_GOING_STOP_GC:
+		stop_gc_thread(sbi);
+		set_sbi_flag(sbi, SBI_NO_GC);
+		break;
 	default:
 		return -EINVAL;
 	}
