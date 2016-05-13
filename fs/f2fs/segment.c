@@ -354,7 +354,8 @@ void f2fs_balance_fs(struct f2fs_sb_info *sbi)
 	 * We should do GC or end up with checkpoint, if there are so many dirty
 	 * dir/node pages without enough free segments.
 	 */
-	if (has_not_enough_free_secs(sbi, 0)) {
+	if (has_not_enough_free_secs(sbi, 0) &&
+			!is_sbi_flag_set(sbi, SBI_NO_GC)) {
 		mutex_lock(&sbi->gc_mutex);
 		f2fs_gc(sbi);
 	}
