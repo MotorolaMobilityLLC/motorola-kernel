@@ -437,6 +437,10 @@ static int f2fs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 	struct inode *inode;
 	int err;
 
+	if(!f2fs_check_avail_size(dentry, 0, 1)) {
+		return -ENOSPC;
+	}
+
 	f2fs_balance_fs(sbi);
 
 	inode = f2fs_new_inode(dir, S_IFDIR | mode);
