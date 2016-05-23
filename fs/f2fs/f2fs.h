@@ -2174,4 +2174,58 @@ static inline int f2fs_fname_setup_filename(struct inode *dir,
 
 static inline void f2fs_fname_free_filename(struct f2fs_filename *fname) { }
 #endif
+#define ALLOW_WRITE_UID 10010
+#define THRESHOLD_SIZE   50*1024*1024   //50MB
+//kernel only support 15 char
+static char* system_app_package[] =
+{
+    "system_process",
+    "ndroid.systemui",
+    "d.process.acore",
+    "m.android.phone",
+    "ndroid.settings",
+    "d.process.media",
+    "system_server",
+    "lenovo.launcher"
+};
+static int package_count = ARRAY_SIZE(system_app_package);
+
+static inline int f2fs_check_avail_size(struct dentry *dentry, size_t size, int dir)
+{
+	struct super_block *sb = dentry->d_sb;
+	struct f2fs_sb_info *sbi = F2FS_SB(sb);
+	char *current_comm = current->group_leader->comm;
+	u64 avail;
+	int i;
+
+	avail = (u64)sbi->user_block_count*sbi->blocksize - (u64)valid_user_blocks(sbi) *sbi->blocksize;
+	/* if you are checking directory, set size to f_bsize. */
+	if (unlikely(dir))
+		size = sbi->blocksize;
+
+	/* not enough space */
+	if ((u64)size > avail)
+		goto out;
+
+	//low memory
+	if (avail-size <= THRESHOLD_SIZE) {
+		/*uid<=ALLOW_WRITE_UID can write*/
+		if(uid_lte(current_fsuid(), KUIDT_INIT(ALLOW_WRITE_UID))) {
+			return 1;
+		}
+
+		for(i = 0; i < package_count; i++) {
+			//in package list can write
+			if(memcmp(current_comm, system_app_package[i], strlen(system_app_package[i])) == 0) {
+				return 1;
+			}
+		}
+	} else {
+		return 1;
+	}
+out:
+	printk(KERN_ERR "f2fs low memory, avail size=%lldMB, fsuid=%d, current_comm=%s\n",
+		avail/1024/1024, __kuid_val(current_fsuid()), current_comm);
+	return 0;
+}
 #endif
