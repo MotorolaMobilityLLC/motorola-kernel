@@ -2094,6 +2094,10 @@ static sector_t f2fs_bmap(struct address_space *mapping, sector_t block)
 		if (err)
 			return err;
 	}
+	/* Block number less than F2FS MAX BLOCKS */
+	if (unlikely(block >= max_file_size(0)))
+		return -EFBIG;
+
 	return generic_block_bmap(mapping, block, get_data_block);
 }
 
