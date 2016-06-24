@@ -23,6 +23,76 @@
 #include "acl.h"
 #include <trace/events/f2fs.h>
 
+/* dcache dops */
+
+#define MEDIA_NAME		"media"
+#define MEDIA_NAME_LEN		5
+
+static unsigned int __f2fs_striptail_len(unsigned int len, const char *name)
+{
+	while (len && name[len - 1] == '.')
+		len--;
+	return len;
+}
+
+static unsigned int f2fs_striptail_len(const struct qstr *qstr)
+{
+	return __f2fs_striptail_len(qstr->len, qstr->name);
+}
+
+static int f2fs_d_hash(const struct dentry *dentry, const struct inode *inode,
+			struct qstr *qstr)
+{
+	const unsigned char *name;
+	unsigned int len;
+	unsigned long hash;
+
+	name = qstr->name;
+	len = f2fs_striptail_len(qstr);
+
+	hash = init_name_hash();
+	while (len--)
+		hash = partial_name_hash(tolower(*name++), hash);
+	qstr->hash = end_name_hash(hash);
+
+	return 0;
+}
+
+static int f2fs_d_compare(const struct dentry *parent, const struct inode *pinode,
+			const struct dentry *dentry, const struct inode *inode,
+			unsigned int len, const char *str, const struct qstr *name)
+{
+	unsigned int alen, blen;
+
+	/* A filename cannot end in '.' or we treat it like it has none */
+	alen = f2fs_striptail_len(name);
+	blen = __f2fs_striptail_len(len, str);
+	if (alen == blen) {
+		if (strncasecmp(name->name, str, alen) == 0)
+			return 0;
+	}
+	return 1;
+}
+
+const struct dentry_operations f2fs_dops = {
+	.d_hash		= f2fs_d_hash,
+	.d_compare	= f2fs_d_compare,
+};
+
+
+static void f2fs_set_d_dops(struct dentry *dentry)
+{
+	if (!strncmp(dentry->d_name.name, MEDIA_NAME, MEDIA_NAME_LEN) &&
+	    dentry->d_name.len == MEDIA_NAME_LEN &&
+	    dentry->d_parent &&
+	    !strncmp(dentry->d_parent->d_name.name, "/", 1) &&
+	    dentry->d_parent->d_name.len == 1) {
+		d_set_d_op(dentry, &f2fs_dops);
+	} else if (dentry->d_parent && dentry->d_parent->d_op == &f2fs_dops) {
+		d_set_d_op(dentry, dentry->d_parent->d_op);
+	}
+}
+
 static struct inode *f2fs_new_inode(struct inode *dir, umode_t mode)
 {
 	struct f2fs_sb_info *sbi = F2FS_I_SB(dir);
@@ -248,6 +318,10 @@ static struct dentry *f2fs_lookup(struct inode *dir, struct dentry *dentry,
 
 	if (dentry->d_name.len > F2FS_NAME_LEN)
 		return ERR_PTR(-ENAMETOOLONG);
+
+	f2fs_set_d_dops(dentry);
+	if (dentry->d_op == &f2fs_dops)
+		flags |= LOOKUP_NOCASE;
 
 	de = f2fs_find_entry(dir, &dentry->d_name, &page, flags);
 	if (!de)
