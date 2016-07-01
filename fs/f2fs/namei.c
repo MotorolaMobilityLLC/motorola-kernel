@@ -24,10 +24,6 @@
 #include <trace/events/f2fs.h>
 
 /* dcache dops */
-
-#define MEDIA_NAME		"media"
-#define MEDIA_NAME_LEN		5
-
 static unsigned int __f2fs_striptail_len(unsigned int len, const char *name)
 {
 	while (len && name[len - 1] == '.')
@@ -78,17 +74,23 @@ const struct dentry_operations f2fs_dops = {
 	.d_compare	= f2fs_d_compare,
 };
 
-
-static void f2fs_set_d_dops(struct dentry *dentry)
+void f2fs_set_nocase_dop(struct inode *inode)
 {
-	if (!strncmp(dentry->d_name.name, MEDIA_NAME, MEDIA_NAME_LEN) &&
-	    dentry->d_name.len == MEDIA_NAME_LEN &&
-	    dentry->d_parent &&
-	    !strncmp(dentry->d_parent->d_name.name, "/", 1) &&
-	    dentry->d_parent->d_name.len == 1) {
-		d_set_d_op(dentry, &f2fs_dops);
-	} else if (dentry->d_parent && dentry->d_parent->d_op == &f2fs_dops) {
-		d_set_d_op(dentry, dentry->d_parent->d_op);
+	struct dentry *dentry;
+
+	/* only dir can be set */
+	if (!S_ISDIR(inode->i_mode))
+		return;
+
+	/* dir inode have one alias at most */
+	dentry = d_find_alias(inode);
+
+	if (dentry) {
+		if (!dentry->d_op) {
+			shrink_dcache_parent(dentry);
+			d_set_d_op(dentry, &f2fs_dops);
+		}
+		dput(dentry);
 	}
 }
 
@@ -325,8 +327,10 @@ static struct dentry *f2fs_lookup(struct inode *dir, struct dentry *dentry,
 	if (dentry->d_name.len > F2FS_NAME_LEN)
 		return ERR_PTR(-ENAMETOOLONG);
 
-	f2fs_set_d_dops(dentry);
-	if (dentry->d_op == &f2fs_dops)
+	if (!dentry->d_op && dentry->d_parent && dentry->d_parent->d_op)
+		d_set_d_op(dentry, dentry->d_parent->d_op);
+
+	if (dentry->d_op)
 		flags |= LOOKUP_NOCASE;
 
 	de = f2fs_find_entry(dir, &dentry->d_name, &page, flags);
@@ -346,6 +350,14 @@ static struct dentry *f2fs_lookup(struct inode *dir, struct dentry *dentry,
 		if (err)
 			goto err_out;
 	}
+
+	if (S_ISDIR(inode->i_mode) && !dentry->d_op) {
+		err = f2fs_getxattr(inode, F2FS_XATTR_INDEX_USER,
+				    F2FS_XATTR_DIR_NOCASE, NULL, 0, NULL);
+		if (err > 0)
+			d_set_d_op(dentry, &f2fs_dops);
+	}
+
 	return d_splice_alias(inode, dentry);
 
 err_out:

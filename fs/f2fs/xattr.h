@@ -40,6 +40,10 @@
 
 #define F2FS_XATTR_NAME_ENCRYPTION_CONTEXT	"c"
 
+/* user.nocase xattribute for case-insensitive dir support */
+#define F2FS_XATTR_DIR_NOCASE			"nocase"
+#define F2FS_XATTR_DIR_NOCASE_LEN		6
+
 struct f2fs_xattr_header {
 	__le32  h_magic;        /* magic number for identification */
 	__le32  h_refcount;     /* reference count */
