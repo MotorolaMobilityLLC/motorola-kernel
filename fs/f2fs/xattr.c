@@ -592,9 +592,12 @@ static int __f2fs_setxattr(struct inode *inode, int index,
 	else
 		update_inode_page(inode);
 
+#ifdef CONFIG_F2FS_EMULATED_SD
 	if (S_ISDIR(inode->i_mode) && len == F2FS_XATTR_DIR_NOCASE_LEN &&
 	    !memcmp(name, F2FS_XATTR_DIR_NOCASE, len))
 		f2fs_set_nocase_dop(inode);
+#endif
+
 exit:
 	kzfree(base_addr);
 	return error;
