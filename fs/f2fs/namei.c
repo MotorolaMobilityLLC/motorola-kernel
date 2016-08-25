@@ -23,6 +23,7 @@
 #include "acl.h"
 #include <trace/events/f2fs.h>
 
+#ifdef CONFIG_F2FS_EMULATED_SD
 /* dcache dops */
 static unsigned int __f2fs_striptail_len(unsigned int len, const char *name)
 {
@@ -94,6 +95,7 @@ void f2fs_set_nocase_dop(struct inode *inode)
 		dput(dentry);
 	}
 }
+#endif
 
 static struct inode *f2fs_new_inode(struct inode *dir, umode_t mode)
 {
@@ -321,11 +323,13 @@ static struct dentry *f2fs_lookup(struct inode *dir, struct dentry *dentry,
 	if (dentry->d_name.len > F2FS_NAME_LEN)
 		return ERR_PTR(-ENAMETOOLONG);
 
+#ifdef CONFIG_F2FS_EMULATED_SD
 	if (!dentry->d_op && dentry->d_parent && dentry->d_parent->d_op)
 		d_set_d_op(dentry, dentry->d_parent->d_op);
 
 	if (dentry->d_op)
 		flags |= LOOKUP_NOCASE;
+#endif
 
 	de = f2fs_find_entry(dir, &dentry->d_name, &page, flags);
 	if (!de)
@@ -345,12 +349,14 @@ static struct dentry *f2fs_lookup(struct inode *dir, struct dentry *dentry,
 			goto err_out;
 	}
 
+#ifdef CONFIG_F2FS_EMULATED_SD
 	if (S_ISDIR(inode->i_mode) && !dentry->d_op) {
 		err = f2fs_getxattr(inode, F2FS_XATTR_INDEX_USER,
 				    F2FS_XATTR_DIR_NOCASE, NULL, 0, NULL);
 		if (err > 0)
 			d_set_d_op(dentry, &f2fs_dops);
 	}
+#endif
 
 	return d_splice_alias(inode, dentry);
 

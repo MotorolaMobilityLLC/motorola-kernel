@@ -1585,7 +1585,9 @@ void handle_failed_inode(struct inode *);
  * namei.c
  */
 struct dentry *f2fs_get_parent(struct dentry *child);
+#ifdef CONFIG_F2FS_EMULATED_SD
 void f2fs_set_nocase_dop(struct inode *inode);
+#endif
 
 /*
  * dir.c
