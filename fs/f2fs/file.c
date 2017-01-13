@@ -20,6 +20,7 @@
 #include <linux/uaccess.h>
 #include <linux/mount.h>
 #include <linux/pagevec.h>
+#include <linux/uio.h>
 #include <linux/random.h>
 #include <linux/aio.h>
 
@@ -1733,10 +1734,20 @@ static ssize_t f2fs_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
 	inode_lock(inode);
 	ret = generic_write_checks(file, &pos, &count, S_ISBLK(inode->i_mode));
 	if (!ret) {
-		ret = f2fs_preallocate_blocks(inode, pos, count,
+		int err;
+
+		if (iov_iter_fault_in_readable(from, iov_iter_count(from)))
+			set_inode_flag(F2FS_I(inode), FI_NO_PREALLOC);
+
+		err = f2fs_preallocate_blocks(inode, pos, count,
 				file->f_flags & O_DIRECT);
-		if (!ret)
-			ret = __generic_file_write_iter(iocb, from);
+		if (err) {
+			clear_inode_flag(F2FS_I(inode), FI_NO_PREALLOC);
+			inode_unlock(inode);
+			return err;
+		}
+		ret = __generic_file_write_iter(iocb, from);
+		clear_inode_flag(F2FS_I(inode), FI_NO_PREALLOC);
 	}
 	inode_unlock(inode);
 
