@@ -102,8 +102,6 @@ static inline bool f2fs_crc_valid(__u32 blk_crc, void *buf, size_t buf_size)
 	return f2fs_crc32(buf, buf_size) == blk_crc;
 }
 
-<<<<<<< HEAD
-=======
 static inline void inode_lock(struct inode *inode)
 {
 	mutex_lock(&inode->i_mutex);
@@ -114,28 +112,6 @@ static inline void inode_unlock(struct inode *inode)
 	mutex_unlock(&inode->i_mutex);
 }
 
-/**
- * wq_has_sleeper - check if there are any waiting processes
- * @wq: wait queue head
- *
- * Returns true if wq has waiting processes
- *
- * Please refer to the comment for waitqueue_active.
- */
-static inline bool wq_has_sleeper(wait_queue_head_t *wq) 
-{
-	/*   
-	 * We need to be sure we are in sync with the
-	 * add_wait_queue modifications to the wait queue.
-	 *
-	 * This memory barrier should be paired with one on the
-	 * waiting side.
-	 */
-	smp_mb();
-	return waitqueue_active(wq);
-}
-
->>>>>>> f2fs: move dio preallocation into f2fs_file_write_iter
 /*
  * For checkpoint manager
  */
@@ -1424,6 +1400,7 @@ enum {
 	FI_DROP_CACHE,		/* drop dirty page cache */
 	FI_DATA_EXIST,		/* indicate data exists */
 	FI_INLINE_DOTS,		/* indicate inline dot dentries */
+	FI_NO_PREALLOC,		/* indicate skipped preallocated blocks */
 };
 
 static inline void set_inode_flag(struct f2fs_inode_info *fi, int flag)
