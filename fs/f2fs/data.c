@@ -1376,8 +1376,10 @@ static void f2fs_write_failed(struct address_space *mapping, loff_t to)
 	struct inode *inode = mapping->host;
 
 	if (to > inode->i_size) {
+		down_write(&F2FS_I(inode)->i_mmap_sem);
 		truncate_pagecache(inode, inode->i_size);
 		truncate_blocks(inode, inode->i_size, true);
+		up_write(&F2FS_I(inode)->i_mmap_sem);
 	}
 }
 
