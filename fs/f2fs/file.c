@@ -1726,10 +1726,6 @@ static ssize_t f2fs_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
 	loff_t pos = iocb->ki_pos;
 	ssize_t ret;
 
-	if (!f2fs_check_avail_size(iocb->ki_filp->f_path.dentry,
-			iocb->ki_nbytes, 0))
-		return -ENOSPC;
-
 	if (f2fs_encrypted_inode(inode) &&
 				!f2fs_has_encryption_key(inode) &&
 				f2fs_get_encryption_info(inode))
