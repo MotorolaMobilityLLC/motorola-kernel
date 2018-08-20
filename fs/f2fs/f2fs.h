@@ -70,8 +70,10 @@ typedef u32 nid_t;
 
 struct f2fs_mount_info {
 	unsigned int	opt;
+#ifdef CONFIG_F2FS_RESERVED_SPACE
 	unsigned int	reserved_mb;
 	unsigned int	reserved_fsuid;
+#endif
 };
 
 #define F2FS_FEATURE_ENCRYPT	0x0001
@@ -2195,6 +2197,7 @@ static inline int f2fs_fname_setup_filename(struct inode *dir,
 }
 
 static inline void f2fs_fname_free_filename(struct f2fs_filename *fname) { }
+#ifdef CONFIG_F2FS_RESERVED_SPACE
 #define DEFAULT_WRITE_FSUID		10010
 /*Reserved 100MB*/
 #define DEFAULT_RESERVED_SIZE		100
@@ -2234,5 +2237,6 @@ out:
 
 	return 0;
 }
+#endif
 #endif
 #endif

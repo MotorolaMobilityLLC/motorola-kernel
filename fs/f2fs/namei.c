@@ -202,8 +202,10 @@ static int f2fs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 
 	f2fs_balance_fs(sbi);
 
+#ifdef CONFIG_F2FS_RESERVED_SPACE
 	if (!f2fs_check_avail_size(dentry, 0, 1))
 		return -ENOSPC;
+#endif
 
 	inode = f2fs_new_inode(dir, mode);
 	if (IS_ERR(inode))
@@ -525,8 +527,11 @@ static int f2fs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 
 	f2fs_balance_fs(sbi);
 
+#ifdef CONFIG_F2FS_RESERVED_SPACE
 	if (!f2fs_check_avail_size(dentry, 0, 1))
 		return -ENOSPC;
+#endif
+
 	inode = f2fs_new_inode(dir, S_IFDIR | mode);
 	if (IS_ERR(inode))
 		return PTR_ERR(inode);
