@@ -67,8 +67,10 @@ enum {
 	Opt_extent_cache,
 	Opt_noextent_cache,
 	Opt_noinline_data,
+#ifdef CONFIG_F2FS_RESERVED_SPACE
 	Opt_reserved_mb,
 	Opt_reserved_fsuid,
+#endif
 	Opt_err,
 };
 
@@ -93,8 +95,10 @@ static match_table_t f2fs_tokens = {
 	{Opt_extent_cache, "extent_cache"},
 	{Opt_noextent_cache, "noextent_cache"},
 	{Opt_noinline_data, "noinline_data"},
+#ifdef CONFIG_F2FS_RESERVED_SPACE
 	{Opt_reserved_mb, "reserved_mb=%u"},
 	{Opt_reserved_mb, "reserved_fsuid=%u"},
+#endif
 	{Opt_err, NULL},
 };
 
@@ -275,9 +279,10 @@ static int parse_options(struct super_block *sb, char *options)
 	substring_t args[MAX_OPT_ARGS];
 	char *p, *name;
 	int arg = 0;
-
+#ifdef CONFIG_F2FS_RESERVED_SPACE
 	sbi->mount_opt.reserved_mb = DEFAULT_RESERVED_SIZE;
 	sbi->mount_opt.reserved_fsuid = DEFAULT_WRITE_FSUID;
+#endif
 
 	if (!options)
 		return 0;
@@ -404,6 +409,7 @@ static int parse_options(struct super_block *sb, char *options)
 		case Opt_noinline_data:
 			clear_opt(sbi, INLINE_DATA);
 			break;
+#ifdef CONFIG_F2FS_RESERVED_SPACE
 		case Opt_reserved_mb:
 			if (match_int(&args[0], &arg))
 				return -EINVAL;
@@ -413,6 +419,7 @@ static int parse_options(struct super_block *sb, char *options)
 			if (match_int(&args[0], &arg))
 				return -EINVAL;
 			sbi->mount_opt.reserved_fsuid = arg;
+#endif
 
 		default:
 			f2fs_msg(sb, KERN_ERR,
@@ -702,11 +709,12 @@ static int f2fs_show_options(struct seq_file *seq, struct dentry *root)
 	else
 		seq_puts(seq, ",noextent_cache");
 	seq_printf(seq, ",active_logs=%u", sbi->active_logs);
-
+#ifdef CONFIG_F2FS_RESERVED_SPACE
 	if (sbi->mount_opt.reserved_mb != 0)
 		seq_printf(seq, ",reserved=%uMB", sbi->mount_opt.reserved_mb);
 	if (sbi->mount_opt.reserved_fsuid != 0)
 		seq_printf(seq, ",fsuid=%u", sbi->mount_opt.reserved_fsuid);
+#endif
 
 	return 0;
 }
