@@ -15,7 +15,7 @@
 #include <linux/scatterlist.h>
 #include <uapi/linux/keyctl.h>
 #include <crypto/hash.h>
-#include <linux/f2fs_fs.h>
+#include <linux/f2fs_fs_legacy.h>
 
 #include "f2fs.h"
 #include "xattr.h"

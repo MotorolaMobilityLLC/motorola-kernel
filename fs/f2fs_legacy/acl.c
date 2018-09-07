@@ -12,7 +12,7 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
-#include <linux/f2fs_fs.h>
+#include <linux/f2fs_fs_legacy.h>
 #include "f2fs.h"
 #include "xattr.h"
 #include "acl.h"

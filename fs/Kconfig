@@ -32,6 +32,7 @@ source "fs/gfs2/Kconfig"
 source "fs/ocfs2/Kconfig"
 source "fs/btrfs/Kconfig"
 source "fs/nilfs2/Kconfig"
+source "fs/f2fs_legacy/Kconfig"
 source "fs/f2fs/Kconfig"
 
 config FS_DAX

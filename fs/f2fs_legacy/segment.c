@@ -9,7 +9,7 @@
  * published by the Free Software Foundation.
  */
 #include <linux/fs.h>
-#include <linux/f2fs_fs.h>
+#include <linux/f2fs_fs_legacy.h>
 #include <linux/bio.h>
 #include <linux/blkdev.h>
 #include <linux/prefetch.h>
@@ -20,7 +20,7 @@
 #include "segment.h"
 #include "node.h"
 #include "trace.h"
-#include <trace/events/f2fs.h>
+#include <trace/events/f2fs_legacy.h>
 
 #define __reverse_ffz(x) __reverse_ffs(~(x))
 

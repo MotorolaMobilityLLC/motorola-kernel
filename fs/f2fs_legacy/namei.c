@@ -10,7 +10,7 @@
  */
 #include <linux/fs.h>
 #include <linux/namei.h>
-#include <linux/f2fs_fs.h>
+#include <linux/f2fs_fs_legacy.h>
 #include <linux/pagemap.h>
 #include <linux/sched.h>
 #include <linux/ctype.h>
@@ -21,7 +21,7 @@
 #include "node.h"
 #include "xattr.h"
 #include "acl.h"
-#include <trace/events/f2fs.h>
+#include <trace/events/f2fs_legacy.h>
 
 /* dcache dops */
 static unsigned int __f2fs_striptail_len(unsigned int len, const char *name)

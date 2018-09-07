@@ -9,7 +9,7 @@
  * published by the Free Software Foundation.
  */
 #include <linux/fs.h>
-#include <linux/f2fs_fs.h>
+#include <linux/f2fs_fs_legacy.h>
 #include "f2fs.h"
 #include "node.h"
 #include "segment.h"

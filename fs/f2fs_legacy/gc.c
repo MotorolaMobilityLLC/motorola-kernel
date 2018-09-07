@@ -12,7 +12,7 @@
 #include <linux/module.h>
 #include <linux/backing-dev.h>
 #include <linux/init.h>
-#include <linux/f2fs_fs.h>
+#include <linux/f2fs_fs_legacy.h>
 #include <linux/kthread.h>
 #include <linux/delay.h>
 #include <linux/freezer.h>
@@ -22,7 +22,7 @@
 #include "node.h"
 #include "segment.h"
 #include "gc.h"
-#include <trace/events/f2fs.h>
+#include <trace/events/f2fs_legacy.h>
 
 static int gc_thread_func(void *data)
 {

@@ -13,7 +13,7 @@
 #include <linux/mpage.h>
 #include <linux/writeback.h>
 #include <linux/blkdev.h>
-#include <linux/f2fs_fs.h>
+#include <linux/f2fs_fs_legacy.h>
 #include <linux/pagevec.h>
 #include <linux/swap.h>
 
@@ -21,7 +21,7 @@
 #include "node.h"
 #include "segment.h"
 #include "trace.h"
-#include <trace/events/f2fs.h>
+#include <trace/events/f2fs_legacy.h>
 
 static struct kmem_cache *ino_entry_slab;
 struct kmem_cache *inode_entry_slab;

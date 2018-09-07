@@ -19,7 +19,7 @@
  * published by the Free Software Foundation.
  */
 #include <linux/rwsem.h>
-#include <linux/f2fs_fs.h>
+#include <linux/f2fs_fs_legacy.h>
 #include <linux/security.h>
 #include <linux/posix_acl_xattr.h>
 #include "f2fs.h"

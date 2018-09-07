@@ -1,8 +1,8 @@
-config F2FS_FS
-	tristate "F2FS filesystem support"
+config F2FS_FS_LEGACY
+	tristate "Motorola Legacy F2FS filesystem support"
 	depends on BLOCK
 	help
-	  F2FS is based on Log-structured File System (LFS), which supports
+	  Motorola Legacy F2FS is based on Log-structured File System (LFS), which supports
 	  versatile "flash-friendly" features. The design has been focused on
 	  addressing the fundamental issues in LFS, which are snowball effect
 	  of wandering tree and high cleaning overhead.
@@ -16,7 +16,7 @@ config F2FS_FS
 
 config F2FS_STAT_FS
 	bool "F2FS Status Information"
-	depends on F2FS_FS && DEBUG_FS
+	depends on F2FS_FS_LEGACY && DEBUG_FS
 	default y
 	help
 	  /sys/debug/f2fs/ contains information about all the partitions
@@ -29,7 +29,7 @@ config F2FS_STAT_FS
 
 config F2FS_FS_XATTR
 	bool "F2FS extended attributes"
-	depends on F2FS_FS
+	depends on F2FS_FS_LEGACY
 	default y
 	help
 	  Extended attributes are name:value pairs associated with inodes by
@@ -66,7 +66,7 @@ config F2FS_FS_SECURITY
 
 config F2FS_CHECK_FS
 	bool "F2FS consistency checking feature"
-	depends on F2FS_FS
+	depends on F2FS_FS_LEGACY
 	help
 	  Enables BUG_ONs which check the filesystem consistency in runtime.
 
@@ -74,7 +74,7 @@ config F2FS_CHECK_FS
 
 config F2FS_RESERVED_SPACE
         bool "F2FS reserved space feature"
-        depends on F2FS_FS
+        depends on F2FS_FS_LEGACY
 	default n
         help
           Enables reserved space to avoid full fill the the memory .
@@ -83,7 +83,7 @@ config F2FS_RESERVED_SPACE
 
 config F2FS_FS_ENCRYPTION
 	bool "F2FS Encryption"
-	depends on F2FS_FS
+	depends on F2FS_FS_LEGACY
 	depends on F2FS_FS_XATTR
 	select CRYPTO_AES
 	select CRYPTO_CBC
@@ -102,7 +102,7 @@ config F2FS_FS_ENCRYPTION
 
 config F2FS_IO_TRACE
 	bool "F2FS IO tracer"
-	depends on F2FS_FS
+	depends on F2FS_FS_LEGACY
 	depends on FUNCTION_TRACER
 	help
 	  F2FS IO trace is based on a function trace, which gathers process

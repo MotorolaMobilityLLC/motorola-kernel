@@ -13,7 +13,7 @@
 #include <linux/random.h>
 #include <linux/string.h>
 #include <linux/types.h>
-#include <linux/f2fs_fs.h>
+#include <linux/f2fs_fs_legacy.h>
 
 #include "f2fs.h"
 #include "xattr.h"

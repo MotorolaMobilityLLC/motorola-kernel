@@ -22,7 +22,7 @@
 #include <linux/random.h>
 #include <linux/exportfs.h>
 #include <linux/blkdev.h>
-#include <linux/f2fs_fs.h>
+#include <linux/f2fs_fs_legacy.h>
 #include <linux/sysfs.h>
 
 #include "f2fs.h"
@@ -33,7 +33,7 @@
 #include "trace.h"
 
 #define CREATE_TRACE_POINTS
-#include <trace/events/f2fs.h>
+#include <trace/events/f2fs_legacy.h>
 
 static struct proc_dir_entry *f2fs_proc_root;
 static struct kmem_cache *f2fs_inode_cachep;

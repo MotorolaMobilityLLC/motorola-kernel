@@ -9,7 +9,7 @@
  * published by the Free Software Foundation.
  */
 #include <linux/fs.h>
-#include <linux/f2fs_fs.h>
+#include <linux/f2fs_fs_legacy.h>
 #include <linux/stat.h>
 #include <linux/buffer_head.h>
 #include <linux/writeback.h>
@@ -31,7 +31,7 @@
 #include "acl.h"
 #include "gc.h"
 #include "trace.h"
-#include <trace/events/f2fs.h>
+#include <trace/events/f2fs_legacy.h>
 
 static int f2fs_filemap_fault(struct vm_area_struct *vma,
 					struct vm_fault *vmf)

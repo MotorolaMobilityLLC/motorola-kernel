@@ -9,7 +9,7 @@
  * published by the Free Software Foundation.
  */
 #include <linux/fs.h>
-#include <linux/f2fs_fs.h>
+#include <linux/f2fs_fs_legacy.h>
 #include <linux/buffer_head.h>
 #include <linux/mpage.h>
 #include <linux/aio.h>
@@ -26,7 +26,7 @@
 #include "node.h"
 #include "segment.h"
 #include "trace.h"
-#include <trace/events/f2fs.h>
+#include <trace/events/f2fs_legacy.h>
 
 static void f2fs_read_end_io(struct bio *bio, int err)
 {

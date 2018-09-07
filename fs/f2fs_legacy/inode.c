@@ -9,14 +9,14 @@
  * published by the Free Software Foundation.
  */
 #include <linux/fs.h>
-#include <linux/f2fs_fs.h>
+#include <linux/f2fs_fs_legacy.h>
 #include <linux/buffer_head.h>
 #include <linux/writeback.h>
 
 #include "f2fs.h"
 #include "node.h"
 
-#include <trace/events/f2fs.h>
+#include <trace/events/f2fs_legacy.h>
 
 void f2fs_set_inode_flags(struct inode *inode)
 {

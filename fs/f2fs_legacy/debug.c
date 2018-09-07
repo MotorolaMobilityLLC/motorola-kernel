@@ -13,7 +13,7 @@
 
 #include <linux/fs.h>
 #include <linux/backing-dev.h>
-#include <linux/f2fs_fs.h>
+#include <linux/f2fs_fs_legacy.h>
 #include <linux/blkdev.h>
 #include <linux/debugfs.h>
 #include <linux/seq_file.h>

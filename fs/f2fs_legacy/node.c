@@ -9,7 +9,7 @@
  * published by the Free Software Foundation.
  */
 #include <linux/fs.h>
-#include <linux/f2fs_fs.h>
+#include <linux/f2fs_fs_legacy.h>
 #include <linux/mpage.h>
 #include <linux/backing-dev.h>
 #include <linux/blkdev.h>
@@ -20,7 +20,7 @@
 #include "node.h"
 #include "segment.h"
 #include "trace.h"
-#include <trace/events/f2fs.h>
+#include <trace/events/f2fs_legacy.h>
 
 #define on_build_free_nids(nmi) mutex_is_locked(&nm_i->build_lock)
 
